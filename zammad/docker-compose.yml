@@ -1,0 +1,69 @@
+version: '3.8'  # Updated for better feature support
+
+services:
+  zammad:
+    image: zammad/zammad-docker-compose:stable
+    ports:
+      - "8080:80"
+    depends_on:
+      - zammad-postgresql
+      - zammad-elasticsearch
+      - redis
+    environment:
+      POSTGRES_HOST: zammad-postgresql
+      POSTGRES_USER: zammad
+      POSTGRES_PASSWORD: 123456  # Updated password
+      REDIS_URL: redis://redis:6379
+      ELASTICSEARCH_HOST: http://zammad-elasticsearch:9200
+      RAILS_LOG_TO_STDOUT: 'true'  # Ensure logs are output to stdout for Docker to capture
+    networks:
+      - default
+    command: ["sh", "-c", "sleep 10 && /opt/zammad/script/rails server -b 0.0.0.0"]  # Wait for dependencies
+
+  zammad-postgresql:
+    image: postgres:11
+    environment:
+      POSTGRES_DB: zammad
+      POSTGRES_USER: zammad
+      POSTGRES_PASSWORD: 123456  # Updated password
+    volumes:
+      - zammad-postgresql-data:/var/lib/postgresql/data
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "zammad"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zammad-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    environment:
+      - discovery.type=single-node
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  zammad-postgresql-data:
+  zammad-elasticsearch-data:
+
+networks:
+  default:
+    driver: bridge
