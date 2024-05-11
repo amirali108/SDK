@@ -5,18 +5,27 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
+  DOCKER_HOST: "tcp://docker:2375"
   DOCKER_TLS_CERTDIR: ""
-  DOCKER_HOST: tcp://docker:2375
 
 services:
   - docker:dind
 
 before_script:
+  # Update package lists, install Docker CLI
+  - apt-get update -y
+  - apt-get install -y docker.io
+  - apt-get install -y docker-compose
+  # Print Docker CLI version for debugging
+  - docker --version
+  - docker-compose --version
+  # Check Docker daemon connectivity
   - docker info
 
 build:
   stage: build
   script:
+    - echo "Building Docker images..."
     - docker-compose -f docker-compose.nextcloud.yml build
     - docker-compose -f docker-compose.zammad.yml build
   only:
@@ -25,13 +34,16 @@ build:
 test:
   stage: test
   script:
+    - echo "Starting services..."
     - docker-compose -f docker-compose.nextcloud.yml up -d
     - docker-compose -f docker-compose.zammad.yml up -d
-    - sleep 60 # Wait for services to be fully up and running
+    - echo "Waiting for services to be fully up and running..."
+    - sleep 60  # Wait for services to be fully up and running
     - docker-compose -f docker-compose.nextcloud.yml ps
     - docker-compose -f docker-compose.zammad.yml ps
     - echo "Tests complete."
   after_script:
+    - echo "Shutting down services..."
     - docker-compose -f docker-compose.nextcloud.yml down
     - docker-compose -f docker-compose.zammad.yml down
   only:
