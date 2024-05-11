@@ -1,0 +1,49 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+
+services:
+  - docker:dind
+
+before_script:
+  - docker info
+
+build:
+  stage: build
+  script:
+    - docker-compose -f docker-compose.nextcloud.yml build
+    - docker-compose -f docker-compose.zammad.yml build
+  only:
+    - main
+
+test:
+  stage: test
+  script:
+    - echo "Running tests..."
+    - docker-compose -f docker-compose.nextcloud.yml up -d
+    - docker-compose -f docker-compose.zammad.yml up -d
+    - sleep 60 # Wait for services to be fully up and running
+    - docker-compose -f docker-compose.nextcloud.yml ps
+    - docker-compose -f docker-compose.zammad.yml ps
+    - echo "Tests complete."
+  only:
+    - main
+  after_script:
+    - docker-compose -f docker-compose.nextcloud.yml down
+    - docker-compose -f docker-compose.zammad.yml down
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying to production..."
+    - docker-compose -f docker-compose.nextcloud.yml up -d
+    - docker-compose -f docker-compose.zammad.yml up -d
+  environment:
+    name: production
+  only:
+    - main
+  when: manual
