@@ -5,13 +5,14 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_HOST: tcp://docker:2375
 
 services:
   - docker:dind
 
 before_script:
   - docker info
-  - apt-get update && apt-get install -y docker-compose  # Installing Docker Compose on Debian/Ubuntu
 
 build:
   stage: build
@@ -24,18 +25,17 @@ build:
 test:
   stage: test
   script:
-    - echo "Running tests..."
     - docker-compose -f docker-compose.nextcloud.yml up -d
     - docker-compose -f docker-compose.zammad.yml up -d
-    - sleep 60 # Optionally, replace with health checks
+    - sleep 60 # Wait for services to be fully up and running
     - docker-compose -f docker-compose.nextcloud.yml ps
     - docker-compose -f docker-compose.zammad.yml ps
     - echo "Tests complete."
-  only:
-    - main
   after_script:
     - docker-compose -f docker-compose.nextcloud.yml down
     - docker-compose -f docker-compose.zammad.yml down
+  only:
+    - main
 
 deploy:
   stage: deploy
