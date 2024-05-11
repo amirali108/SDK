@@ -12,14 +12,10 @@ services:
   - docker:dind
 
 before_script:
-  # Update package lists, install Docker CLI
   - apt-get update -y
-  - apt-get install -y docker.io
-  - apt-get install -y docker-compose
-  # Print Docker CLI version for debugging
+  - apt-get install -y docker.io docker-compose
   - docker --version
   - docker-compose --version
-  # Check Docker daemon connectivity
   - docker info
 
 build:
@@ -27,7 +23,6 @@ build:
   script:
     - echo "Building Docker images..."
     - docker-compose -f docker-compose.nextcloud.yml build
-    - docker-compose -f docker-compose.zammad.yml build
   only:
     - main
 
@@ -36,16 +31,10 @@ test:
   script:
     - echo "Starting services..."
     - docker-compose -f docker-compose.nextcloud.yml up -d
-    - docker-compose -f docker-compose.zammad.yml up -d
-    - echo "Waiting for services to be fully up and running..."
-    - sleep 60  # Wait for services to be fully up and running
+    - sleep 60
     - docker-compose -f docker-compose.nextcloud.yml ps
-    - docker-compose -f docker-compose.zammad.yml ps
-    - echo "Tests complete."
   after_script:
-    - echo "Shutting down services..."
     - docker-compose -f docker-compose.nextcloud.yml down
-    - docker-compose -f docker-compose.zammad.yml down
   only:
     - main
 
@@ -54,7 +43,6 @@ deploy:
   script:
     - echo "Deploying to production..."
     - docker-compose -f docker-compose.nextcloud.yml up -d
-    - docker-compose -f docker-compose.zammad.yml up -d
   environment:
     name: production
   only:
