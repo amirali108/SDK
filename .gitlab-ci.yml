@@ -1,50 +1,20 @@
 stages:
-  - build
-  - test
+  - setup
   - deploy
 
-variables:
-  DOCKER_DRIVER: overlay2
-  DOCKER_HOST: "tcp://docker:2375"
-  DOCKER_TLS_CERTDIR: ""
-
-services:
-  - docker:dind
-
-before_script:
-  - apt-get update -y
-  - apt-get install -y docker.io docker-compose
-  - docker --version
-  - docker-compose --version
-  - docker info
-
-build:
-  stage: build
+setup:
+  stage: setup
   script:
-    - echo "Building Docker images..."
-    - docker-compose -f docker-compose.nextcloud.yml build
-  only:
-    - main
-
-test:
-  stage: test
-  script:
-    - echo "Starting services..."
-    - docker-compose -f docker-compose.nextcloud.yml up -d
-    - sleep 60
-    - docker-compose -f docker-compose.nextcloud.yml ps
-  after_script:
-    - docker-compose -f docker-compose.nextcloud.yml down
-  only:
-    - main
+    - apt-get update -y
+    - apt-get install -y docker.io docker-compose
+  tags:
+    - docker
 
 deploy:
   stage: deploy
   script:
-    - echo "Deploying to production..."
-    - docker-compose -f docker-compose.nextcloud.yml up -d
-  environment:
-    name: production
+    - docker-compose up -d
   only:
     - main
-  when: manual
+  tags:
+    - docker
