@@ -30,7 +30,7 @@ build_zammad:
 build_monitoring:
   stage: build
   script:
-    - cd monitoring
+    - cd Monitoring
     - docker-compose build
 
 deploy_customer1:
@@ -54,5 +54,5 @@ deploy_zammad:
 deploy_monitoring:
   stage: deploy
   script:
-    - cd monitoring
+    - cd Monitoring
     - docker-compose up -d
