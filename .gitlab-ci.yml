@@ -2,19 +2,17 @@ stages:
   - build
   - deploy
 
+variables:
+  DOCKER_DRIVER: overlay2
+
 services:
   - docker:dind
-
-variables:
-  DOCKER_HOST: tcp://docker:2375/
-  DOCKER_TLS_CERTDIR: ""
 
 before_script:
   - apt-get update
   - apt-get install -y curl
   - curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   - chmod +x /usr/local/bin/docker-compose
-  - docker-compose --version
 
 build_customer1:
   stage: build
@@ -28,38 +26,34 @@ build_customer2:
     - cd nextcloud/customer2
     - docker-compose build
 
-build_zammad:
-  stage: build
-  script:
-    - cd zammad
-    - docker-compose build
-
 build_monitoring:
   stage: build
   script:
     - cd Monitoring
     - docker-compose build
 
+build_zammad:
+  stage: build
+  script:
+    - cd zammad
+    - docker-compose build
+
 deploy_customer1:
   stage: deploy
   script:
-    - cd nextcloud/customer1
-    - docker-compose up -d
+    - ssh root@192.168.1.101 'cd /nextcloud/customer1 && docker-compose up -d'
 
 deploy_customer2:
   stage: deploy
   script:
-    - cd nextcloud/customer2
-    - docker-compose up -d
-
-deploy_zammad:
-  stage: deploy
-  script:
-    - cd zammad
-    - docker-compose up -d
+    - ssh root@192.168.1.102 'cd /nextcloud/customer2 && docker-compose up -d'
 
 deploy_monitoring:
   stage: deploy
   script:
-    - cd Monitoring
-    - docker-compose up -d
+    - ssh root@192.168.1.104 'cd /Monitoring && docker-compose up -d'
+
+deploy_zammad:
+  stage: deploy
+  script:
+    - ssh root@192.168.1.103 'cd /zammad && docker-compose up -d'
