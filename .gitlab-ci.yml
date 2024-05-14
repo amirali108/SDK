@@ -2,6 +2,13 @@ stages:
   - build
   - deploy
 
+services:
+  - docker:dind
+
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_TLS_CERTDIR: ""
+
 before_script:
   - apt-get update
   - apt-get install -y curl
