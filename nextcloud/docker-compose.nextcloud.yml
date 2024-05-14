@@ -8,16 +8,16 @@ services:
     volumes:
       - db:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=123456
-      - MYSQL_PASSWORD=123456
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
 
   app:
     image: nextcloud
     ports:
-      - 8080:80
-    links:
+      - "${NEXTCLOUD_PORT}:80"
+    depends_on:
       - db
     volumes:
       - nextcloud:/var/www/html
