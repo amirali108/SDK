@@ -1,70 +1,51 @@
-image: docker:latest
-
-services:
-  - docker:dind
-
-variables:
-  DOCKER_DRIVER: overlay2
-
 stages:
   - build
   - deploy
-
-before_script:
-  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
 build_customer1:
   stage: build
   script:
     - cd nextcloud/customer1
-    - docker-compose -f docker-compose.yml build
-    - docker-compose -f docker-compose.yml push
-
-deploy_customer1:
-  stage: deploy
-  script:
-    - cd nextcloud/customer1
-    - docker-compose -f docker-compose.yml pull
-    - docker-compose -f docker-compose.yml up -d
+    - docker-compose build
 
 build_customer2:
   stage: build
   script:
     - cd nextcloud/customer2
-    - docker-compose -f docker-compose.yml build
-    - docker-compose -f docker-compose.yml push
-
-deploy_customer2:
-  stage: deploy
-  script:
-    - cd nextcloud/customer2
-    - docker-compose -f docker-compose.yml pull
-    - docker-compose -f docker-compose.yml up -d
+    - docker-compose build
 
 build_zammad:
   stage: build
   script:
     - cd zammad
-    - docker-compose -f docker-compose.yml build
-    - docker-compose -f docker-compose.yml push
-
-deploy_zammad:
-  stage: deploy
-  script:
-    - cd zammad
-    - docker-compose -f docker-compose.yml pull
-    - docker-compose -f docker-compose.yml up -d
+    - docker-compose build
 
 build_monitoring:
   stage: build
   script:
     - cd monitoring
-    - docker-compose -f docker-compose.yml build
-    - docker-compose -f docker-compose.yml push
+    - docker-compose build
+
+deploy_customer1:
+  stage: deploy
+  script:
+    - cd nextcloud/customer1
+    - docker-compose up -d
+
+deploy_customer2:
+  stage: deploy
+  script:
+    - cd nextcloud/customer2
+    - docker-compose up -d
+
+deploy_zammad:
+  stage: deploy
+  script:
+    - cd zammad
+    - docker-compose up -d
 
 deploy_monitoring:
   stage: deploy
   script:
     - cd monitoring
-    - docker-compose -f docker-compose.yml pull
-    - docker-compose -f docker-compose.yml up -d
+    - docker-compose up -d
