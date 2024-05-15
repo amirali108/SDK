@@ -1,1 +1,1 @@
-Project: Secure Digital Communication Platform with Nextcloud, Zammad, and Monitoring
+**Project: Secure Digital Communication Platform with Nextcloud, Zammad, and Monitoring**
