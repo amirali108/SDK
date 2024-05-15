@@ -9,7 +9,7 @@ SDK is a digital infrastructure that enables public actors to exchange sensitive
 
 **Benefits of SDK**
 
-**- **Security:** Personal or sensitive information is not spread to unauthorized parties.
+**- Security:** Personal or sensitive information is not spread to unauthorized parties.
 
 **- Efficiency:** Faster processing and decision-making.
 
