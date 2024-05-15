@@ -18,4 +18,37 @@ SDK is a digital infrastructure that enables public actors to exchange sensitive
 **- Compatibility:** Messages sent via SDK can contain free text and attachments in various formats. They are addressed to functional addresses within the connected participant organizations, such as social services within a municipality, a department at an authority, or a health center within a region. It is not possible to send messages directly to individuals.
 
 **- Integration:** SDK lacks its own user interface, meaning the staff using SDK creates and receives messages in the software chosen by the organization to send messages.
+For more information on SDK, visit sdk.digg.se.
+
+**Project Overview**
+
+This project sets up a secure communication platform integrating Nextcloud for file sharing and collaboration, Zammad for ticketing and customer support, and a monitoring stack using Prometheus and Grafana. The setup is designed to cater to the needs of the public sector, ensuring a reliable and secure infrastructure for digital communication.
+
+SDK
+├── Monitoring
+│   ├── .gitkeep
+│   ├── docker-compose.yml
+│   ├── grafana.ini
+│   ├── prometheus.yml
+│   └── README.md
+├── nextcloud
+│   ├── customer1
+│   │   ├── .env
+│   │   ├── docker-compose.yml
+│   │   ├── nginx.conf
+│   │   └── README.md
+│   ├── customer2
+│   │   ├── .env
+│   │   ├── docker-compose.yml
+│   │   ├── nginx.conf
+│   │   └── README.md
+│   ├── .gitkeep
+│   └── README.md
+├── zammad
+│   ├── docker-compose.yml
+│   ├── nginx.conf
+│   └── README.md
+├── .gitlab-ci.yml
+└── README.md
+
 
