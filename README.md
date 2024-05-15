@@ -24,31 +24,5 @@ For more information on SDK, visit sdk.digg.se.
 
 This project sets up a secure communication platform integrating Nextcloud for file sharing and collaboration, Zammad for ticketing and customer support, and a monitoring stack using Prometheus and Grafana. The setup is designed to cater to the needs of the public sector, ensuring a reliable and secure infrastructure for digital communication.
 
-SDK
-├── Monitoring
-│   ├── .gitkeep
-│   ├── docker-compose.yml
-│   ├── grafana.ini
-│   ├── prometheus.yml
-│   └── README.md
-├── nextcloud
-│   ├── customer1
-│   │   ├── .env
-│   │   ├── docker-compose.yml
-│   │   ├── nginx.conf
-│   │   └── README.md
-│   ├── customer2
-│   │   ├── .env
-│   │   ├── docker-compose.yml
-│   │   ├── nginx.conf
-│   │   └── README.md
-│   ├── .gitkeep
-│   └── README.md
-├── zammad
-│   ├── docker-compose.yml
-│   ├── nginx.conf
-│   └── README.md
-├── .gitlab-ci.yml
-└── README.md
 
 
