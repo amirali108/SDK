@@ -20,3 +20,6 @@ Objectives
 Enhance Security: By implementing SDK with Nextcloud, we aim to create a secure communication channel for sensitive data exchange.
 Improve Efficiency: Streamline the process of information exchange and reduce the reliance on outdated methods like fax and postal mail.
 Monitoring and Maintenance: Use Grafana and Prometheus to monitor system health and performance, ensuring high availability and reliability.
+
+More information about connecting to the SDK
+You can find all information about the SDK and how to connect on the website sdk.digg.se
