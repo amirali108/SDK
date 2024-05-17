@@ -18,13 +18,13 @@ mkdir -p /nextcloud/customer1
 
 cd /nextcloud/customer1
 
-nano .env  # Add environment variables
+nano .env                     # Add environment variables
 
-nano docker-compose.yml  # Add Docker Compose configuration
+nano docker-compose.yml       # Add Docker Compose configuration
 
-nano nginx.conf  # Add Nginx configuration
+nano nginx.conf               # Add Nginx configuration
 
-nano .gitlab-ci.yml  # Add GitLab CI/CD configuration
+nano .gitlab-ci.yml           # Add GitLab CI/CD configuration
 
 
 **2-Run Docker Compose:**
