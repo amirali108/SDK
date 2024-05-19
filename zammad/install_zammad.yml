@@ -1,0 +1,83 @@
+---
+- name: Install Zammad on Server
+  hosts: zammad_servers
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Install necessary packages
+      apt:
+        name:
+          - curl
+          - apt-transport-https
+          - gnupg
+          - locales
+        state: present
+        update_cache: yes
+
+    - name: Generate and set locale
+      command: /usr/sbin/locale-gen en_US.UTF-8
+      environment:
+        LANG: en_US.UTF-8
+        LC_ALL: en_US.UTF-8
+
+    - name: Set default locale
+      copy:
+        dest: /etc/default/locale
+        content: |
+          LANG=en_US.UTF-8
+          LC_ALL=en_US.UTF-8
+
+    - name: Install HTTPS support for apt
+      apt:
+        name: apt-transport-https
+        state: present
+
+    - name: Import Zammad signing key
+      shell: curl -fsSL https://dl.packager.io/srv/zammad/zammad/key | gpg --dearmor | tee /etc/apt/trusted.gpg.d/pkgr-zammad.gpg > /dev/null
+
+    - name: Add Zammad repository to the system
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/trusted.gpg.d/pkgr-zammad.gpg] https://dl.packager.io/srv/deb/zammad/zammad/stable/ubuntu 22.04 main"
+        state: present
+
+    - name: Update apt repository cache
+      apt:
+        update_cache: yes
+
+    - name: Install Zammad
+      apt:
+        name: zammad
+        state: latest
+
+    - name: Update Nginx configuration to use port 8060 for Zammad
+      lineinfile:
+        path: /etc/nginx/sites-available/zammad.conf
+        regexp: 'listen 80;'
+        line: 'listen 8060;'
+      notify: restart nginx
+
+    - name: Update Nginx configuration for IPv6 to use port 8060 for Zammad
+      lineinfile:
+        path: /etc/nginx/sites-available/zammad.conf
+        regexp: 'listen \[\:\:\]\:80;'
+        line: 'listen [::]:8060;'
+      notify: restart nginx
+
+    - name: Allow new port through firewall
+      ufw:
+        rule: allow
+        port: 8060
+        proto: tcp
+
+  handlers:
+    - name: restart nginx
+      systemd:
+        name: nginx
+        state: restarted
+
+    - name: Start and enable Zammad
+      systemd:
+        name: zammad
+        enabled: yes
+        state: started
