@@ -1,13 +1,47 @@
-version: '3'
+version: '3.8'
 
 services:
-  zammad:
-    image: zammad/zammad
-    ports:
-      - "8083:80"
-    restart: always
+  zammad-db:
+    image: mariadb:10.5
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: zammad
+      MYSQL_USER: zammad
+      MYSQL_PASSWORD: 123456
     volumes:
-      - zammad:/var/lib/zammad
+      - zammad-db:/var/lib/mysql
+
+  zammad-redis:
+    image: redis:6
+
+  zammad-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+    environment:
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - zammad-elasticsearch:/usr/share/elasticsearch/data
+
+  zammad-railsserver:
+    image: zammad/zammad:latest
+    ports:
+      - "8081:80"
+    depends_on:
+      - zammad-db
+      - zammad-redis
+      - zammad-elasticsearch
+    environment:
+      ZAMMAD_DB_ADAPTER: mysql2
+      ZAMMAD_DB_HOST: zammad-db
+      ZAMMAD_DB_NAME: zammad
+      ZAMMAD_DB_USERNAME: zammad
+      ZAMMAD_DB_PASSWORD: 123456
+      REDIS_URL: redis://zammad-redis:6379
+    volumes:
+      - zammad-data:/opt/zammad
 
 volumes:
-  zammad:
+  zammad-db:
+  zammad-data:
+  zammad-elasticsearch:
+
