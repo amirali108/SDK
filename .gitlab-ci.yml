@@ -1,28 +1,51 @@
-version: '3'
+stages:
+  - build
+  - deploy
+  - cleanup
+
+variables:
+  DOCKER_DRIVER: overlay2
 
 services:
-  db:
-    image: mariadb
-    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
-    restart: always
-    volumes:
-      - db:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
+  - docker:dind
 
-  app:
-    image: nextcloud
-    ports:
-      - "${NEXTCLOUD_PORT}:80"
-    depends_on:
-      - db
-    volumes:
-      - nextcloud:/var/www/html
-    restart: always
+before_script:
+  - docker info
 
-volumes:
-  db:
-  nextcloud:
+build_services:
+  stage: build
+  image: docker:latest
+  script:
+    - echo "Building Monitoring service..."
+    - docker-compose -f monitoring/docker-compose.yml build
+    - echo "Building Nextcloud service..."
+    - docker-compose -f nextcloud/customer1/docker-compose.yml build
+
+deploy_services:
+  stage: deploy
+  image: docker:latest
+  script:
+    - echo "Deploying Monitoring service..."
+    - docker-compose -f monitoring/docker-compose.yml up -d
+    - echo "Deploying Nextcloud service..."
+    - docker-compose -f nextcloud/customer1/docker-compose.yml up -d
+    - echo "Installing Zammad..."
+    - apt-get update && apt-get install -y python3 python3-pip
+    - pip3 install ansible
+    - ansible-playbook zammad/install_zammad.yml -i zammad/inventory.ini
+
+verify_services:
+  stage: deploy
+  image: docker:latest
+  script:
+    - echo "Verifying running containers..."
+    - docker ps
+
+cleanup_services:
+  stage: cleanup
+  image: docker:latest
+  script:
+    - echo "Cleaning up services..."
+    - docker-compose -f monitoring/docker-compose.yml down
+    - docker-compose -f nextcloud/customer1/docker-compose.yml down
+  when: always
