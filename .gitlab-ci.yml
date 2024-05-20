@@ -13,12 +13,14 @@ before_script:
 
 build_services:
   stage: build
+  image: docker:latest
   script:
     - docker-compose -f monitoring/docker-compose.yml build
     - docker-compose -f nextcloud/customer1/docker-compose.yml build
 
 deploy_services:
   stage: deploy
+  image: docker:latest
   script:
     - docker-compose -f monitoring/docker-compose.yml up -d
     - docker-compose -f nextcloud/customer1/docker-compose.yml up -d
@@ -26,17 +28,19 @@ deploy_services:
     - pip3 install ansible
     - ansible-playbook zammad/install_zammad.yml -i zammad/inventory.ini
   only:
-    - master
+    - main
 
 verify_services:
   stage: deploy
+  image: docker:latest
   script:
     - docker ps
   only:
-    - master
+    - main
 
 cleanup_services:
   stage: deploy
+  image: docker:latest
   script:
     - docker-compose -f monitoring/docker-compose.yml down
     - docker-compose -f nextcloud/customer1/docker-compose.yml down
