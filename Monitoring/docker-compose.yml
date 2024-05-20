@@ -1,18 +1,40 @@
-version: '3'
+version: '3.7'
 
 services:
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:latest
+    container_name: prometheus
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "8084:9090"
-    restart: always
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:latest
+    container_name: grafana
     volumes:
-      - ./grafana.ini:/etc/grafana/grafana.ini
+      - grafana_data:/var/lib/grafana
     ports:
-      - "8085:3000"
-    restart: always
+      - "3100:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+volumes:
+  prometheus_data:
+  grafana_data:
