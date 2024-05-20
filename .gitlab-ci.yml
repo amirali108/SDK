@@ -1,6 +1,7 @@
 stages:
   - build
   - deploy
+  - test
   - cleanup
 
 variables:
@@ -16,30 +17,40 @@ build_services:
   stage: build
   image: docker:latest
   script:
-    - echo "Building Monitoring service..."
+    - echo "Building Monitoring services..."
     - docker-compose -f monitoring/docker-compose.yml build
-    - echo "Building Nextcloud service..."
+    - echo "Building Nextcloud services..."
     - docker-compose -f nextcloud/customer1/docker-compose.yml build
+  allow_failure: false
+  only:
+    - main
 
 deploy_services:
   stage: deploy
   image: docker:latest
   script:
-    - echo "Deploying Monitoring service..."
+    - echo "Deploying Monitoring services..."
     - docker-compose -f monitoring/docker-compose.yml up -d
-    - echo "Deploying Nextcloud service..."
+    - echo "Deploying Nextcloud services..."
     - docker-compose -f nextcloud/customer1/docker-compose.yml up -d
-    - echo "Installing Zammad..."
-    - apt-get update && apt-get install -y python3 python3-pip
-    - pip3 install ansible
+    - echo "Deploying Zammad..."
+    - apt-get update && apt-get install -y ansible
     - ansible-playbook zammad/install_zammad.yml -i zammad/inventory.ini
+  allow_failure: false
+  only:
+    - main
 
-verify_services:
-  stage: deploy
+test_services:
+  stage: test
   image: docker:latest
   script:
-    - echo "Verifying running containers..."
-    - docker ps
+    - echo "Running smoke tests..."
+    - curl -f http://localhost:9090
+    - curl -f http://localhost:3000
+    - curl -f http://localhost:8060
+  allow_failure: true
+  only:
+    - main
 
 cleanup_services:
   stage: cleanup
@@ -49,3 +60,5 @@ cleanup_services:
     - docker-compose -f monitoring/docker-compose.yml down
     - docker-compose -f nextcloud/customer1/docker-compose.yml down
   when: always
+  only:
+    - main
