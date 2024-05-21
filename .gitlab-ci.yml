@@ -35,7 +35,7 @@ deploy_services:
     - docker-compose -f nextcloud/customer1/docker-compose.yml up -d
     - echo "Deploying Zammad..."
     - apt-get update && apt-get install -y ansible
-    - ansible-playbook zammad/install_zammad.yml -i zammad/inventory.ini
+    - ansible-playbook -i zammad/inventory.ini zammad/install_zammad.yml
   allow_failure: false
   only:
     - main
