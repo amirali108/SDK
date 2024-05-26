@@ -25,3 +25,4 @@ Begin by cloning the project repository to your local machine or server:
 git clone https://example.com/your-repo.git
 
 cd your-repo/zammad
+
