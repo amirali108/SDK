@@ -13,6 +13,8 @@ before_script:
   - apt-get install -y curl ansible
   - curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   - chmod +x /usr/local/bin/docker-compose
+  - sleep 20 # Wait for Docker to initialize
+  - docker info # Verify Docker is running
 
 build_monitoring:
   stage: build
@@ -33,6 +35,7 @@ build_monitoring:
 build_customer1:
   stage: build
   script:
+    - echo "Moving to the Customer1 directory..."
     - cd nextcloud/customer1
     - echo "Listing contents of the Customer1 directory..."
     - ls -la
@@ -48,6 +51,7 @@ build_customer1:
 build_customer2:
   stage: build
   script:
+    - echo "Moving to the Customer2 directory..."
     - cd nextcloud/customer2
     - echo "Listing contents of the Customer2 directory..."
     - ls -la
@@ -78,6 +82,7 @@ build_zammad:
 deploy_customer1:
   stage: deploy
   script:
+    - echo "Moving to the Customer1 directory..."
     - cd nextcloud/customer1
     - echo "Listing contents of the Customer1 directory..."
     - ls -la
@@ -93,6 +98,7 @@ deploy_customer1:
 deploy_customer2:
   stage: deploy
   script:
+    - echo "Moving to the Customer2 directory..."
     - cd nextcloud/customer2
     - echo "Listing contents of the Customer2 directory..."
     - ls -la
@@ -108,6 +114,7 @@ deploy_customer2:
 deploy_monitoring:
   stage: deploy
   script:
+    - echo "Moving to the Monitoring directory..."
     - cd Monitoring
     - echo "Listing contents of the Monitoring directory..."
     - ls -la
