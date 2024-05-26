@@ -60,6 +60,21 @@ build_customer2:
         exit 1;
       fi
 
+build_zammad:
+  stage: build
+  script:
+    - echo "Moving to the Zammad directory..."
+    - cd zammad
+    - echo "Listing contents of the Zammad directory..."
+    - ls -la
+    - |
+      if [ -f "install_zammad.yml" ]; then
+        echo "install_zammad.yml found, skipping build step since it's an Ansible playbook.";
+      else
+        echo "install_zammad.yml not found in $(pwd), cannot proceed.";
+        exit 1;
+      fi
+
 deploy_customer1:
   stage: deploy
   script:
@@ -108,6 +123,7 @@ deploy_monitoring:
 deploy_zammad:
   stage: deploy
   script:
+    - echo "Moving to the Zammad directory..."
     - cd zammad
     - echo "Running Ansible playbook for Zammad..."
     - ansible-playbook -i inventory.ini install_zammad.yml
