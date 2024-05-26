@@ -1,8 +1,6 @@
 stages:
   - build
   - deploy
-  - test
-  - cleanup
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -11,54 +9,106 @@ services:
   - docker:dind
 
 before_script:
-  - docker info
+  - apt-get update
+  - apt-get install -y curl
+  - curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  - chmod +x /usr/local/bin/docker-compose
 
-build_services:
+build_monitoring:
   stage: build
-  image: docker:latest
   script:
-    - echo "Building Monitoring services..."
-    - docker-compose -f monitoring/docker-compose.yml build
-    - echo "Building Nextcloud services..."
-    - docker-compose -f nextcloud/customer1/docker-compose.yml build
-  allow_failure: false
-  only:
-    - main
+    - echo "Moving to the Monitoring directory..."
+    - cd Monitoring
+    - echo "Listing contents of the Monitoring directory..."
+    - ls -la
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting build...";
+        docker-compose build;
+      else
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with build.";
+        exit 1;
+      fi
 
-deploy_services:
+build_customer1:
+  stage: build
+  script:
+    - cd nextcloud/customer1
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting build...";
+        docker-compose build;
+      else
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with build.";
+        exit 1;
+      fi
+
+build_customer2:
+  stage: build
+  script:
+    - cd nextcloud/customer2
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting build...";
+        docker-compose build;
+      else
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with build.";
+        exit 1;
+      fi
+
+build_zammad:
+  stage: build
+  script:
+    - cd zammad
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting build...";
+        docker-compose build;
+      else
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with build.";
+        exit 1;
+      fi
+
+deploy_customer1:
   stage: deploy
-  image: docker:latest
   script:
-    - echo "Deploying Monitoring services..."
-    - docker-compose -f monitoring/docker-compose.yml up -d
-    - echo "Deploying Nextcloud services..."
-    - docker-compose -f nextcloud/customer1/docker-compose.yml up -d
-    - echo "Deploying Zammad..."
-    - apt-get update && apt-get install -y ansible
-    - ansible-playbook -i zammad/inventory.ini zammad/install_zammad.yml
-  allow_failure: false
-  only:
-    - main
+    - cd nextcloud/customer1
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting deployment...";
+        docker-compose up -d;
+      else
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with deployment.";
+        exit 1;
+      fi
 
-test_services:
-  stage: test
-  image: docker:latest
+deploy_customer2:
+  stage: deploy
   script:
-    - echo "Running smoke tests..."
-    - curl -f http://localhost:9090
-    - curl -f http://localhost:3000
-    - curl -f http://localhost:8060
-  allow_failure: true
-  only:
-    - main
+    - cd nextcloud/customer2
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting deployment...";
+        docker-compose up -d;
+      else
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with deployment.";
+        exit 1;
+      fi
 
-cleanup_services:
-  stage: cleanup
-  image: docker:latest
+deploy_monitoring:
+  stage: deploy
   script:
-    - echo "Cleaning up services..."
-    - docker-compose -f monitoring/docker-compose.yml down
-    - docker-compose -f nextcloud/customer1/docker-compose.yml down
-  when: always
-  only:
-    - main
+    - cd Monitoring
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting deployment...";
+        docker-compose up -d;
+      else
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with deployment.";
+        exit 1;
+      fi
+
+deploy_zammad:
+  stage: deploy
+  script:
+    - cd zammad
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting deployment...";
+        docker-compose up -d;
+      else
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with deployment.";
+        exit 1;
+      fi
