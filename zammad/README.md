@@ -67,7 +67,7 @@ After deployment, access Zammad on your specified domain:
 http://your-domain.com
 
 
-Documentation
+Documentation:
 
 For more detailed documentation on Zammad's features and further customization options, visit the official Zammad documentation.
 
