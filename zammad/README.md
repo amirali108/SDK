@@ -81,7 +81,3 @@ For more detailed documentation on Zammad's features and further customization o
 
 
 
-Deploy with Docker Compose
-
-Use Docker Compose to deploy Zammad and its dependencies (Elasticsearch, PostgreSQL):
-
