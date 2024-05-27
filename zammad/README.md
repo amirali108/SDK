@@ -26,3 +26,42 @@ git clone https://example.com/your-repo.git
 
 cd your-repo/zammad
 
+Setup Environment Variables
+
+Copy the sample environment variable file and modify it according to your needs:
+
+cp .env.example .env
+
+nano .env
+
+Deploy with Docker Compose
+
+Use Docker Compose to deploy Zammad and its dependencies (Elasticsearch, PostgreSQL):
+
+docker-compose up -d
+
+Inventory File and Ansible Playbook
+
+Create an Inventory File
+
+Create an inventory file named inventory.ini in your project directory. This file should include the IP addresses of the servers where you want to deploy Zammad:
+
+ini# Create the inventory file with nano editor
+
+nano inventory.ini
+
+Inside the nano editor, you would add the configuration details for your servers.
+
+
+
+
+
+
+
+
+
+
+Deploy with Docker Compose
+
+Use Docker Compose to deploy Zammad and its dependencies (Elasticsearch, PostgreSQL):
+
