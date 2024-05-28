@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Project Documentation: Secure Digital Communication (SDK) with Nextcloud, Zammad, and Monitoring
 
 Introduction
@@ -23,3 +24,6 @@ Monitoring and Maintenance: Use Grafana and Prometheus to monitor system health 
 
 More information about connecting to the SDK
 You can find all information about the SDK and how to connect on the website sdk.digg.se
+=======
+# SDK
+>>>>>>> b8aa64e916c17b483ce10e258289436884c0da50
