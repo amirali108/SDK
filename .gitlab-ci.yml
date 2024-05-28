@@ -4,13 +4,16 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"  # Ensure Docker daemon uses TLS (security)
 
 services:
-  - docker:dind
+  - name: docker:20.10.16-dind
+    alias: docker
+    command: ["--mtu=1500"]
 
 before_script:
-  - apt-get update
-  - apt-get install -y curl ansible
+  - docker info  # To check if Docker is running and configured
+  - apk update && apk add --no-cache curl docker-compose
   - curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   - chmod +x /usr/local/bin/docker-compose
 
@@ -21,13 +24,12 @@ build_monitoring:
     - cd Monitoring
     - echo "Listing contents of the Monitoring directory..."
     - ls -la
-    - |
-      if [ -f "docker-compose.yml" ]; then
-        echo "docker-compose.yml found, starting build...";
-        docker-compose build;
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting build..."
+        docker-compose build
       else
-        echo "docker-compose.yml not found in $(pwd), cannot proceed with build.";
-        exit 1;
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with build."
+        exit 1
       fi
 
 build_customer1:
@@ -36,13 +38,12 @@ build_customer1:
     - cd nextcloud/customer1
     - echo "Listing contents of the Customer1 directory..."
     - ls -la
-    - |
-      if [ -f "docker-compose.yml" ]; then
-        echo "docker-compose.yml found, starting build...";
-        docker-compose build;
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting build..."
+        docker-compose build
       else
-        echo "docker-compose.yml not found in $(pwd), cannot proceed with build.";
-        exit 1;
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with build."
+        exit 1
       fi
 
 build_customer2:
@@ -51,28 +52,12 @@ build_customer2:
     - cd nextcloud/customer2
     - echo "Listing contents of the Customer2 directory..."
     - ls -la
-    - |
-      if [ -f "docker-compose.yml" ]; then
-        echo "docker-compose.yml found, starting build...";
-        docker-compose build;
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting build..."
+        docker-compose build
       else
-        echo "docker-compose.yml not found in $(pwd), cannot proceed with build.";
-        exit 1;
-      fi
-
-build_zammad:
-  stage: build
-  script:
-    - echo "Moving to the Zammad directory..."
-    - cd zammad
-    - echo "Listing contents of the Zammad directory..."
-    - ls -la
-    - |
-      if [ -f "install_zammad.yml" ]; then
-        echo "install_zammad.yml found, skipping build step since it's an Ansible playbook.";
-      else
-        echo "install_zammad.yml not found in $(pwd), cannot proceed.";
-        exit 1;
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with build."
+        exit 1
       fi
 
 deploy_customer1:
@@ -81,13 +66,12 @@ deploy_customer1:
     - cd nextcloud/customer1
     - echo "Listing contents of the Customer1 directory..."
     - ls -la
-    - |
-      if [ -f "docker-compose.yml" ]; then
-        echo "docker-compose.yml found, starting deployment...";
-        docker-compose up -d;
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting deployment..."
+        docker-compose up -d
       else
-        echo "docker-compose.yml not found in $(pwd), cannot proceed with deployment.";
-        exit 1;
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with deployment."
+        exit 1
       fi
 
 deploy_customer2:
@@ -96,13 +80,12 @@ deploy_customer2:
     - cd nextcloud/customer2
     - echo "Listing contents of the Customer2 directory..."
     - ls -la
-    - |
-      if [ -f "docker-compose.yml" ]; then
-        echo "docker-compose.yml found, starting deployment...";
-        docker-compose up -d;
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting deployment..."
+        docker-compose up -d
       else
-        echo "docker-compose.yml not found in $(pwd), cannot proceed with deployment.";
-        exit 1;
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with deployment."
+        exit 1
       fi
 
 deploy_monitoring:
@@ -111,13 +94,12 @@ deploy_monitoring:
     - cd Monitoring
     - echo "Listing contents of the Monitoring directory..."
     - ls -la
-    - |
-      if [ -f "docker-compose.yml" ]; then
-        echo "docker-compose.yml found, starting deployment...";
-        docker-compose up -d;
+    - if [ -f "docker-compose.yml" ]; then
+        echo "docker-compose.yml found, starting deployment..."
+        docker-compose up -d
       else
-        echo "docker-compose.yml not found in $(pwd), cannot proceed with deployment.";
-        exit 1;
+        echo "docker-compose.yml not found in $(pwd), cannot proceed with deployment."
+        exit 1
       fi
 
 deploy_zammad:
